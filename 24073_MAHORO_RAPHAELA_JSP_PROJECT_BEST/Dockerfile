@@ -1,0 +1,6 @@
+
+FROM tomcat:9.0-alpine
+
+COPY 24073_MAHORO_RAPHAELA_JSP_PROJECT.war /usr/local/tomcat/webapps/24073_MAHORO_RAPHAELA_JSP_PROJECT.war
+
+EXPOSE 8086
