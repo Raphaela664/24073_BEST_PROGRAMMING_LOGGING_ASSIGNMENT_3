@@ -1,6 +1,5 @@
 package registration.auca.student;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,19 +10,39 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.ConsoleHandler;
 
-//@WebServlet("/UserServlets")
 public class UserServlets extends HttpServlet {
     private static final long serialVersionUID = 1L;
-
+    private static final Logger logger = Logger.getLogger(StudentRegistration.class.getName());
+    
     private static final String URL = "jdbc:postgresql://localhost:5432/testdb";
     private static final String USER = "mahoro";
     private static final String PASSWORD = "Auca@2020";
 
     public UserServlets() {
         super();
+        initializeLogger();
     }
 
+    private void initializeLogger() {
+        try {
+            // Set up console handler
+            ConsoleHandler consoleLogHandler = new ConsoleHandler();
+            consoleLogHandler.setFormatter(new SimpleFormatter());
+            logger.addHandler(consoleLogHandler);
+
+            // Set up file handler
+            FileHandler fileLogHandler = new FileHandler("application.log", true);
+            fileLogHandler.setFormatter(new SimpleFormatter());
+            logger.addHandler(fileLogHandler);
+        } catch (IOException logSetupException) {
+            logger.severe("Failed to set up file handler: " + logSetupException.getMessage());
+        }
+    }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String firstname = request.getParameter("firstname");
         String lastname = request.getParameter("lastname");
@@ -65,6 +84,7 @@ public class UserServlets extends HttpServlet {
             out.println("</body></html>");
 
         } catch (SQLException e) {
+        	logger.severe("Database access error " + e.getMessage());
             throw new ServletException("Database access error", e);
         }
     }
@@ -74,7 +94,8 @@ public class UserServlets extends HttpServlet {
             Class.forName("org.postgresql.Driver");
             return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException e) {
-            throw new SQLException("PostgreSQL JDBC driver not found", e);
+        	logger.severe("driver not found " + e.getMessage());
+            throw new SQLException(" driver not found", e);
         }
     }
 }
